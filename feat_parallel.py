@@ -79,4 +79,4 @@ if __name__ == "__main__":
 
     pool = Pool(processes = int(args.j))
     print pool.map(feat, new_fsf_list)
-    #print 'Completed'
+    print 'Completed'
