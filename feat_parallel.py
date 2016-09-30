@@ -3,6 +3,9 @@ import os
 import argparse
 from multiprocessing import Pool
 
+def feat(fileLoc):
+    print os.popen('feat {0}'.format(fileLoc))
+
 def feat_parallel(args):
     fsfLoc = args.fsf
 
@@ -53,31 +56,27 @@ set highres_files(1) "{0}"\n\n'.format(sMRI_img)
         
         targetText = os.path.join(os.path.dirname(args.fsf),
                                   re.sub('\/','_', fMRI_img)+'.fsf')
-        new_fsf_list.append(targetText)
+        with open(targetText, 'w') as f:
+            f.write(final_text)
+
+        new_fsf_list.append(os.path.abspath(targetText))
 
     return new_fsf_list
-        #with open(targetText, 'w') as f:
-            #f.write(final_text)
-
-        #os.popen('feat {0}'.format(targetText)).read()
-
-
-
-def feat(fsf):
-    return os.popen('feat {0}'.format(fsf)).read()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parallizes the feat')
-
     parser.add_argument('--fsf','-f', 
                         help='Feat configuration file saved with multiple subjects')
     parser.add_argument('--j','-j', 
+                        default=8,
                         help='Number of cores to use')
-
     args = parser.parse_args()
-    new_fsf_list = feat_parallel(args)
 
-    pool = Pool(processes = args.j)
-    print pool.map(feat_parallel, new_fsf_list)
-    print 'Completed'
+    new_fsf_list = feat_parallel(args)
+    print new_fsf_list
+    
+
+    pool = Pool(processes = int(args.j))
+    print pool.map(feat, new_fsf_list)
+    #print 'Completed'
